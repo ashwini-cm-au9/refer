@@ -119,3 +119,86 @@ Send a message...
 ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts
 New chat
 
+..................
+
+Open sidebar
+Chunkwise File Upload.
+
+
+Ashwini CM
+How to send a file chunkwise in react
+
+To send a file chunkwise in React, you can use the FileReader API to read the file data and then send the chunks of data to the server using an AJAX request.
+
+Here's an example implementation using the axios library for the AJAX request:
+
+javascript
+Copy code
+import axios from 'axios';
+
+const CHUNK_SIZE = 1024 * 1024; // 1 MB chunk size
+
+function sendFileChunks(file, onProgress) {
+  const fileSize = file.size;
+  let offset = 0;
+
+  function readChunk() {
+    const fileReader = new FileReader();
+    const chunk = file.slice(offset, offset + CHUNK_SIZE);
+
+    fileReader.onload = function() {
+      const chunkData = fileReader.result;
+      sendChunk(chunkData);
+
+      offset += CHUNK_SIZE;
+      if (offset < fileSize) {
+        readChunk();
+      }
+    };
+
+    fileReader.readAsArrayBuffer(chunk);
+  }
+
+  function sendChunk(chunkData) {
+    const formData = new FormData();
+    formData.append('file', new Blob([chunkData]));
+
+    axios.post('/upload', formData, {
+      onUploadProgress: (progressEvent) => {
+        const progress = Math.round((progressEvent.loaded * 100) / fileSize);
+        onProgress(progress);
+      },
+    });
+  }
+
+  readChunk();
+}
+This implementation reads the file in chunks of 1 MB (you can adjust this value as needed) using the FileReader API. The sendChunk function creates a FormData object and appends the chunk data to it, then sends an AJAX request to the server using axios.post. The onUploadProgress option is used to track the progress of the file upload and call the onProgress callback function with the percentage of the file that has been uploaded.
+
+You can use this function in a React component like this:
+
+javascript
+Copy code
+function FileUploader() {
+  function handleFileUpload(event) {
+    const file = event.target.files[0];
+
+    sendFileChunks(file, (progress) => {
+      console.log(`File upload progress: ${progress}%`);
+    });
+  }
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileUpload} />
+    </div>
+  );
+}
+This code creates a file input element and attaches an onChange event handler to it. When the user selects a file, the handleFileUpload function is called with the selected file, and the sendFileChunks function is used to send the file to the server in chunks. The onProgress callback function is called with the upload progress, which can be used to display a progress bar or other UI feedback to the user.
+
+
+
+Send a message...
+
+
+ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts
