@@ -1,4 +1,4 @@
-Open sidebar
+JiOpen sidebar
 Sending files with tus.
 
 
@@ -228,3 +228,12 @@ function CsvReader() {
     </div>
   );
 }
+
+const array1 = [1, 2, 3];
+const array2 = [1, 2, 3];
+const array3 = [1, 2, 4];
+
+const isEqual = array1.length === array2.length && array1.every((value, index) => value === array2[index]);
+
+console.log(isEqual); // true
+
