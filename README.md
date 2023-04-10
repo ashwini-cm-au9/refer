@@ -198,7 +198,33 @@ This code creates a file input element and attaches an onChange event handler to
 
 
 
-Send a message...
+import React, { useState } from 'react';
+import csv from 'csv-parse';
 
+function CsvReader() {
+  const [headers, setHeaders] = useState([]);
 
-ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    reader.readAsText(file);
+
+    reader.onload = () => {
+      csv(reader.result, {}, (err, data) => {
+        if (err) {
+          console.error(err);
+        } else {
+          // The first row of the CSV data contains the headers
+          setHeaders(data[0]);
+        }
+      });
+    };
+  };
+
+  return (
+    <div>
+      <input type="file" onChange={handleFileChange} />
+      <div>Headers: {headers.join(', ')}</div>
+    </div>
+  );
+}
