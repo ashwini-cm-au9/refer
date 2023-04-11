@@ -237,3 +237,24 @@ const isEqual = array1.length === array2.length && array1.every((value, index) =
 
 console.log(isEqual); // true
 
+
+import os
+from django.conf import settings
+
+def my_view(request):
+    if request.method == 'POST':
+        file = request.FILES['file']
+        file_name = file.name
+        save_path = os.path.join(settings.MEDIA_ROOT, file_name)
+        with open(save_path, 'wb') as f:
+            for chunk in file.chunks():
+                f.write(chunk)
+        return HttpResponse('File uploaded successfully.')
+    else:
+        return HttpResponse('Invalid request method.')
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns = [
+    # Your other URL patterns here
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
