@@ -257,4 +257,65 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     # Your other URL patterns here
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_RO
+
+
+
+
+import React from 'react';
+
+class CSVHeaderReader extends React.Component {
+  handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const csvData = event.target.result;
+      const headers = csvData.split('\n')[0].split(',');
+
+      console.log(headers); // log the headers to console
+    };
+
+    reader.readAsText(file);
+  };
+
+  render() {
+    return (
+      <div>
+        <input type="file" onChange={this.handleFileSelect} />
+      </div>
+    );
+  }
+}
+
+export default CSVHeaderReader;
+
+
+import React from 'react';
+
+class CSVHeaderReader extends React.Component {
+  handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (event) => {
+      const csvData = event.target.result;
+      const lines = csvData.split('\n');
+      const headers = lines[0].replace('\r', '').split(',');
+
+      console.log(headers); // log the headers to console
+    };
+
+    reader.readAsText(file);
+  };
+
+  render() {
+    return (
+      <div>
+        <input type="file" onChange={this.handleFileSelect} />
+      </div>
+    );
+  }
+}
+
+export default CSVHeaderReader;
