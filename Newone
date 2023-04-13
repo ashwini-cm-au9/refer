@@ -1,0 +1,170 @@
+
+API with aiohttp_tus
+
+
+Ashwini CM
+Api with routes using aiohttp_tus with complete code
+
+Sure! Here's an example of how to use aiohttp_tus to create an API with routes for uploading and downloading files using the Tus protocol:
+
+python
+Copy code
+import asyncio
+import aiohttp
+from aiohttp import web
+import aiohttp_tus
+
+
+async def upload(request):
+    """Handle file uploads using the Tus protocol."""
+    app = request.app
+    tus_upload_path = '/uploads/'  # The endpoint for Tus uploads
+    tus_store_path = '/data/'  # The directory where uploaded files will be stored
+
+    # Initialize the Tus server
+    tus_server = aiohttp_tus.Server(app, tus_upload_path, tus_store_path)
+
+    # Handle the request
+    response = await tus_server.handle_request(request)
+    return response
+
+
+async def download(request):
+    """Handle file downloads."""
+    app = request.app
+    file_path = '/data/file.txt'  # The path to the file to download
+
+    # Serve the file
+    with open(file_path, 'rb') as f:
+        response = web.StreamResponse()
+        response.content_type = 'application/octet-stream'
+        response.headers['Content-Disposition'] = 'attachment; filename="file.txt"'
+        await response.prepare(request)
+
+        while True:
+            chunk = f.read(1024)
+            if not chunk:
+                break
+            await response.write(chunk)
+
+        return response
+
+
+app = web.Application()
+
+# Add the routes for uploading and downloading files
+app.add_routes([web.post('/uploads/', upload), web.get('/download/', download)])
+
+if __name__ == '__main__':
+    web.run_app(app)
+In this example, upload handles file uploads using the Tus protocol. The tus_upload_path variable specifies the endpoint where Tus uploads will be handled, and the tus_store_path variable specifies the directory where uploaded files will be stored.
+
+download handles file downloads. The file_path variable specifies the path to the file to be downloaded. The file is served using the web.StreamResponse class, which allows the file to be streamed in chunks to the client.
+
+Finally, app.add_routes adds the upload and download routes to the application.
+
+Note that this example assumes that the Tus client will be sending the Upload-Length header to specify the length of the file being uploaded. If the client does not send this header, aiohttp_tus will not be able to handle the upload.
+
+
+
+from a React client using the fetch API:
+
+javascript
+Copy code
+const fileInput = document.getElementById('file-input');
+const uploadButton = document.getElementById('upload-button');
+
+uploadButton.addEventListener('click', async () => {
+  const file = fileInput.files[0];
+
+  // Create a new Tus upload using the Fetch API
+  const response = await fetch('/uploads/', {
+    method: 'POST',
+    headers: {
+      'Upload-Length': file.size.toString(),
+    },
+    body: file,
+  });
+
+  if (!response.ok) {
+    console.error('Error uploading file:', response.statusText);
+    return;
+  }
+
+  console.log('File uploaded successfully!');
+});
+In this example, fileInput and uploadButton are references to the file input and upload button elements in the React component. When the upload button is clicked, the code creates a new Tus upload using the fetch API.
+
+The headers object is used to set the Upload-Length header to the size of the file being uploaded. The body property is set to the file object.
+
+If the response from the server is not ok, an error message is logged to the console. Otherwise, a success message is logged.
+
+Note that this example assumes that the server will be handling the file upload using the aiohttp_tus library, as shown in the previous example.
+
+
+############$$
+Node.js API with tus.
+
+
+Ashwini CM
+Api in nodejs with tus to handle file
+
+To create an API in Node.js with tus to handle file uploads, you can follow these steps:
+
+Install the tus-node-server package using npm:
+Copy code
+npm install tus-node-server
+Create a new Node.js file and import the necessary modules:
+javascript
+Copy code
+const tus = require('tus-node-server');
+const express = require('express');
+const app = express();
+Set up the tus server configuration:
+javascript
+Copy code
+const server = new tus.Server();
+server.datastore = new tus.FileStore({
+  path: '/files'
+});
+Here we create a new tus server and set the datastore to a new FileStore instance with a path of /files which will store uploaded files in the /files directory.
+
+Set up the tus server endpoint:
+javascript
+Copy code
+app.all('/files/*', (req, res) => {
+  server.handle(req, res);
+});
+Here we create an endpoint that matches all requests to /files/* and passes them to the tus server's handle method.
+
+Start the server:
+javascript
+Copy code
+const port = 8080;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
+This starts the server on port 8080 and logs a message to the console when it starts.
+
+Your final code should look something like this:
+
+javascript
+Copy code
+const tus = require('tus-node-server');
+const express = require('express');
+const app = express();
+
+const server = new tus.Server();
+server.datastore = new tus.FileStore({
+  path: '/files'
+});
+
+app.all('/files/*', (req, res) => {
+  server.handle(req, res);
+});
+
+const port = 8080;
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
+});
+With this set up, you can now upload files to your API using tus client libraries or the tus-js-client package.
