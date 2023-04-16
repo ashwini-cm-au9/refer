@@ -1,0 +1,21 @@
+import aiohttp
+import aiohttp_tus
+from aiohttp import web
+
+async def upload_handler(request):
+    async with aiohttp_tus.TusServer(request.app['D:/bk']) as tus:
+        await tus.create_file()
+        while True:
+            chunk = await request.content.read(8192)
+            if not chunk:
+                break
+            await tus.write_chunk(chunk)
+        await tus.finish_file()
+        print("finished")
+        return web.Response(status=204)
+
+app = web.Application()
+app.add_routes([web.post('/upload', upload_handler)])
+
+if __name__ == '__main__':
+    web.run_app(app)
