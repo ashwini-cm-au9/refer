@@ -1,0 +1,71 @@
+Open sidebar
+New chat
+
+
+Ashwini CM
+Python server code using aiohttp_tus Setup_tus and aiohttp_tus resources with on upload done using aiohttp_tus.data along with Request.resources and filename
+
+2 / 2
+
+
+Sure, I can provide you with an example of Python server code using aiohttp_tus to handle file uploads. Here's an example:
+
+python
+Copy code
+import aiohttp
+import aiohttp_tus
+from aiohttp import web
+
+
+async def on_upload_done(request, filename, file_size):
+    # This function is called when the upload is complete.
+    # You can do whatever you want with the uploaded file here.
+    print(f"Uploaded {filename} ({file_size} bytes)")
+
+
+async def handle_upload(request):
+    # Create a TusUploadResource and add it to the request resources.
+    tus_upload_resource = aiohttp_tus.TusUploadResource(
+        request.app["tus_upload_path"], request.app["tus_upload_dir"]
+    )
+    request["resources"].append(tus_upload_resource)
+
+    # Create a TusServer instance and handle the request.
+    tus_server = aiohttp_tus.TusServer(request, tus_upload_resource)
+    await tus_server.handle_request()
+
+    # Check if the upload is complete.
+    if tus_server.upload_done:
+        filename, file_size = await aiohttp_tus.data(tus_server.upload_file_path)
+        await on_upload_done(request, filename, file_size)
+
+    # Return a 200 OK response.
+    return web.Response(status=200)
+
+
+async def main():
+    app = web.Application()
+    app["tus_upload_path"] = "/upload"
+    app["tus_upload_dir"] = "/path/to/upload/dir"
+    app.router.add_post(app["tus_upload_path"], handle_upload)
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "localhost", 8080)
+    await site.start()
+
+
+if __name__ == "__main__":
+    aiohttp.ClientSession()
+    asyncio.run(main())
+In this example, we define an on_upload_done function that gets called when the upload is complete. We also define a handle_upload function that creates a TusUploadResource and adds it to the request resources, creates a TusServer instance, and handles the request. If the upload is complete, we call the on_upload_done function with the filename and file size. Finally, we define a main function that creates an aiohttp application, sets the tus_upload_path and tus_upload_dir app properties, and adds a route for the handle_upload function. We then create an aiohttp runner and TCP site, and start the server.
+
+Note that this is just an example, and you'll need to modify it to suit your specific needs. For example, you may want to add authentication or limit the file size.
+
+
+
+
+Send a message...
+
+
+ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts.
+ChatGPT
