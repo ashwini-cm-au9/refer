@@ -319,3 +319,73 @@ class CSVHeaderReader extends React.Component {
 }
 
 export default CSVHeaderReader;
+
+aiohttp_tus python server without any cors error
+
+2 / 2
+
+
+To send a file using the tus-js-client library in React to an aiohttp_tus server without any CORS errors, you can follow these steps:
+
+Install the tus-js-client library using npm:
+Copy code
+npm install tus-js-client
+Import the tus-js-client library in your React component:
+javascript
+Copy code
+import tus from "tus-js-client";
+Create a new tus upload object and add the necessary headers:
+javascript
+Copy code
+const upload = new tus.Upload(file, {
+  endpoint: "http://your-aiohttp-tus-server.com/files/",
+  resume: true,
+  retryDelays: [0, 1000, 3000, 5000],
+  headers: {
+    "Authorization": "Bearer <your-access-token>",
+    "Content-Type": "application/octet-stream",
+    "Tus-Resumable": "1.0.0",
+    "Upload-Length": file.size,
+    "Upload-Metadata": `filename ${encodeURIComponent(file.name)}`,
+  },
+});
+Set up the tus upload object event listeners:
+javascript
+Copy code
+upload.addEventListener("progress", (event) => {
+  const percent = ((event.bytesUploaded / event.bytesTotal) * 100).toFixed(2);
+  console.log(`Uploaded ${percent}%`);
+});
+
+upload.addEventListener("error", (event) => {
+  console.log(`Upload failed: ${event}`);
+});
+
+upload.addEventListener("success", () => {
+  console.log(`Upload finished: ${upload.url}`);
+});
+Start the tus upload:
+javascript
+Copy code
+upload.start();
+Make sure your aiohttp_tus server allows CORS requests by adding the appropriate headers in your Python code:
+python
+Copy code
+from aiohttp import web
+
+async def handle_cors(request):
+    response = web.Response()
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "POST, GET, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
+app = web.Application()
+app.router.add_route("*", "/{tail:.*}", handle_cors)
+With these steps, you should be able to upload files from your React application to your aiohttp_tus server without any CORS errors.
+
+
+
+
+
+
