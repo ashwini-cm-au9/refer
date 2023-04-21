@@ -168,3 +168,61 @@ app.listen(port, () => {
   console.log(`Server started on port ${port}`);
 });
 With this set up, you can now upload files to your API using tus client libraries or the tus-js-client package.
+
+
+Open sidebar
+New chat
+
+
+Ashwini CM
+Aiohttp tus server to receive files in nodejs 
+
+2 / 2
+
+
+To implement a tus server in nodejs using the aiohttp library, you can follow these steps:
+
+Install aiohttp and tus library using npm:
+bash
+Copy code
+npm install aiohttp tus
+Create a new aiohttp web application:
+javascript
+Copy code
+const aiohttp = require('aiohttp');
+const tus = require('tus-node-server');
+
+const app = new aiohttp.web.Application();
+Configure the tus server options:
+javascript
+Copy code
+const server = new tus.Server({
+  datastore: new tus.FileStore({
+    path: '/path/to/file/store'
+  }),
+  uploadUrl: '/files',
+  maxFileSize: 100 * 1024 * 1024 // 100MB
+});
+Add a route to handle tus requests:
+javascript
+Copy code
+app.router.add('POST', '/files', async (request) => {
+  return server.handle(request.rawRequest, request.rawResponse);
+});
+Start the aiohttp web application:
+javascript
+Copy code
+const port = 8080;
+app.listen(port);
+console.log(`Server started on port ${port}`);
+With these steps, you should now have a functioning tus server that can receive files up to 100MB in size. Note that you will need to replace /path/to/file/store with the actual path where you want to store uploaded files. You can also customize other options, such as the maximum file size, by modifying the server object.
+
+
+
+
+
+Send a message...
+
+
+ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts.
+
