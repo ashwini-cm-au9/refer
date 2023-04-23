@@ -226,3 +226,45 @@ Send a message...
 
 ChatGPT Mar 23 Version. Free Research Preview. ChatGPT may produce inaccurate information about people, places, or facts.
 
+const express = require('express');
+const tus = require('tus-node-server');
+const app = express();
+
+const server = new tus.Server();
+app.all('/files/*', server.handle.bind(server));
+
+server.datastore = new tus.FileStore({
+  directory: '/files'
+});
+
+server.on(tus.EVENTS.POST_CREATE, (event) => {
+  const metadata = tus.metadata.parse(event.file.upload_metadata);
+
+  const filename = metadata.filename;
+  const filesize = metadata.filesize;
+
+  console.log(`Received file: ${filename} (${filesize} bytes)`);
+});
+
+
+const tus = require("tus-node-server");
+
+const server = new tus.Server();
+
+server.datastore = new tus.FileStore({
+  directory: "/path/to/files"
+});
+
+server.on(tus.EVENTS.POST_CREATE, (event) => {
+  const filename = event.file.originalName;
+  const filesize = event.file.size;
+  
+  console.log(`Received file "${filename}" with size ${filesize} bytes.`);
+});
+
+server.listen({
+  path: "/files",
+  host: "0.0.0.0",
+  port: 1080
+});
+
