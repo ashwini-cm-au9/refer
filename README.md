@@ -1,5 +1,46 @@
 JiOpen sidebar
 Sending files with tus.
+import React, { useEffect, useRef } from 'react';
+import Uppy from '@uppy/core';
+import GoldenRetriever from '@uppy/golden-retriever';
+import { Dashboard } from '@uppy/react';
+
+const FileUploader = () => {
+  const uppyRef = useRef(null);
+
+  useEffect(() => {
+    const uppy = Uppy({
+      id: 'uppy',
+      autoProceed: false,
+      restrictions: {
+        maxFileSize: 5242880, // 5MB
+      },
+    })
+      .use(GoldenRetriever, {
+        expires: 24 * 60 * 60 * 1000, // 24 hours
+        serviceWorker: true,
+      })
+      .on('complete', () => {
+        uppy.reset();
+      });
+
+    uppyRef.current = uppy;
+
+    return () => {
+      uppy.close();
+    };
+  }, []);
+
+  return (
+    <div>
+      <Dashboard uppy={uppyRef.current} />
+
+      {/* Your navigation links/buttons */}
+    </div>
+  );
+};
+
+export default FileUploader;
 
 
 Ashwini CM
